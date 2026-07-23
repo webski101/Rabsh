@@ -14,6 +14,7 @@ const { createAudit } = require('../lib/audit');
 const { verifyChain } = require('../lib/verify');
 const { stableStringify, cacheKey } = require('../lib/client');
 const { buildScenarios, validatePayload } = require('../lib/scenarios');
+const { calibrate } = require('../lib/simulate');
 
 // ---------- demand math ----------
 
@@ -173,6 +174,44 @@ test('validatePayload enforces occupancy_pacing pair and adjustment-1.0 rules', 
   assert.throws(() => validatePayload({ base_price_adjustment: 1.0 }));
   validatePayload({ occupancy_pacing: { adjusted: true, pacing: [] } });
   validatePayload({ base_price_adjustment: 1.1 });
+});
+
+// ---------- calibration probe ----------
+
+// The multiplier applies to the RECOMMENDED base while hold-course prices
+// reflect the CURRENT base, so expected ratio = 1.1 × rec/current.
+function probeClient(probePrice) {
+  return { post: async () => ({ status: 201, data: { data: [{ stay_date: '2026-08-01', price: probePrice }] } }) };
+}
+const holdDays484 = [{ stay_date: '2026-08-01', price: 484 }];
+
+test('calibrate passes when current base ≠ recommended (observed live case)', async () => {
+  // Live observation on 64473584: base at conservative 484, rec 538 -> probe 1.1×538
+  const r = await calibrate(probeClient(1.1 * 538), 1, 'hypothetical', holdDays484, { rec: 538, current: 484 });
+  assert.equal(r.ok, true);
+  assert.equal(r.semantics, 'multiplier');
+  assert.ok(Math.abs(r.observed_ratio - 1.223) < 0.001);
+  assert.ok(Math.abs(r.expected_ratio - 1.1 * (538 / 484)) < 0.001);
+});
+
+test('calibrate passes when current base equals recommended', async () => {
+  const r = await calibrate(probeClient(484 * 1.1), 1, 'hypothetical', holdDays484, { rec: 484, current: 484 });
+  assert.equal(r.ok, true);
+  assert.ok(Math.abs(r.expected_ratio - 1.1) < 0.001);
+});
+
+test('calibrate fails on genuine semantics mismatch (e.g. percent, not multiplier)', async () => {
+  // If 1.1 meant "+1.1%", probe would be ~484×1.011 — must fail and block.
+  const r = await calibrate(probeClient(484 * 1.011), 1, 'hypothetical', holdDays484, { rec: 538, current: 484 });
+  assert.equal(r.ok, false);
+  assert.equal(r.semantics, 'unknown');
+  assert.match(r.reason, /blocked/i);
+});
+
+test('calibrate falls back to expected 1.1 when anchors are missing', async () => {
+  const r = await calibrate(probeClient(484 * 1.1), 1, 'hypothetical', holdDays484, { rec: NaN, current: 0 });
+  assert.equal(r.ok, true);
+  assert.ok(Math.abs(r.expected_ratio - 1.1) < 0.001);
 });
 
 // ---------- executor merge / diff ----------

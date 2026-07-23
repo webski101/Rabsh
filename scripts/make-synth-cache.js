@@ -75,11 +75,14 @@ function applyPayload(listing, payload, rand) {
     const d = dateAt(i);
     let price = recPrice(listing, i, rand);
 
-    // base_price: scale proportionally against the recommended anchor.
-    if (payload.base_price) price = price * (payload.base_price / anchors.rec);
-
-    // MULTIPLIER semantics (verified by smoke test): 1.1 = +10%.
-    if (payload.base_price_adjustment) price = price * payload.base_price_adjustment;
+    // Resolve the effective base like the real API (verified 2026-07-23):
+    // no payload -> current base; base_price -> that absolute value;
+    // base_price_adjustment -> MULTIPLIER applied to the RECOMMENDED base
+    // (1.1 = +10% of rec), NOT the current base.
+    let effectiveBase = anchors.current;
+    if (payload.base_price) effectiveBase = payload.base_price;
+    if (payload.base_price_adjustment) effectiveBase = anchors.rec * payload.base_price_adjustment;
+    price = price * (effectiveBase / anchors.rec);
 
     if (payload.seasonality_adjustment) {
       const season = SEASON[d.getUTCMonth() + 1];
