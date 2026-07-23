@@ -7,8 +7,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script>
+  (() => {
+    let theme = 'light';
+    try {
+      const savedTheme = window.localStorage.getItem('rabsh-theme');
+      theme = savedTheme === 'light' || savedTheme === 'dark'
+        ? savedTheme
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    } catch {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = theme;
+  })();
+</script>
 <style>
-  /* Hallmark · genre: modern-minimal · macrostructure: Workbench · theme: Cobalt · polish: control clarity + result hierarchy + audit disclosure · nav: N9 · footer: Ft2 */
+  /* Hallmark · genre: modern-minimal · macrostructure: Workbench · theme: Cobalt dual-mode · polish: control clarity + result hierarchy + audit disclosure · nav: N9 · footer: Ft2 */
   /* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
   :root {
     color-scheme: light;
@@ -109,6 +123,55 @@
     --control-height: 2.75rem;
     --page-max: 90rem;
     --page-gutter: clamp(1rem, 3vw, 2.5rem);
+  }
+
+  html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --color-paper: oklch(14% 0.012 250);
+    --color-paper-2: oklch(17.5% 0.014 250);
+    --color-paper-3: oklch(21% 0.016 250);
+    --color-paper-raised: oklch(18.5% 0.014 250);
+    --color-ink: oklch(94% 0.008 250);
+    --color-ink-2: oklch(84% 0.012 250);
+    --color-muted: oklch(70% 0.016 250);
+    --color-rule: oklch(28% 0.018 250);
+    --color-rule-strong: oklch(43% 0.024 250);
+    --color-accent: oklch(68% 0.170 256);
+    --color-accent-strong: oklch(76% 0.145 256);
+    --color-accent-soft: oklch(25% 0.055 256);
+    --color-accent-ink: oklch(15% 0.018 256);
+    --color-focus: oklch(78% 0.135 256);
+    --color-graphite: oklch(10.5% 0.012 260);
+    --color-graphite-2: oklch(22% 0.018 260);
+    --color-graphite-ink: oklch(94% 0.008 250);
+    --color-graphite-muted: oklch(72% 0.016 250);
+    --color-success: oklch(72% 0.115 151);
+    --color-success-soft: oklch(24% 0.040 151);
+    --color-success-on-dark: oklch(78% 0.110 151);
+    --color-error: oklch(72% 0.135 25);
+    --color-error-soft: oklch(24% 0.045 25);
+    --color-error-on-dark: oklch(80% 0.105 25);
+    --color-warning: oklch(78% 0.115 76);
+    --color-warning-soft: oklch(25% 0.040 76);
+    --color-overlay: oklch(8% 0.012 258 / 0.68);
+
+    --color-chart-1: oklch(72% 0.160 256);
+    --color-chart-2: oklch(72% 0.120 188);
+    --color-chart-3: oklch(78% 0.115 82);
+    --color-chart-4: oklch(72% 0.145 28);
+    --color-chart-5: oklch(72% 0.135 302);
+    --color-chart-6: oklch(76% 0.120 48);
+    --color-chart-7: oklch(74% 0.110 224);
+    --color-chart-8: oklch(76% 0.115 350);
+    --color-chart-9: oklch(78% 0.115 104);
+    --color-chart-10: oklch(72% 0.105 162);
+    --color-chart-11: oklch(74% 0.125 326);
+    --color-chart-grid: oklch(28% 0.018 250);
+    --color-chart-ref: oklch(66% 0.022 256);
+
+    --shadow-whisper: 0 1px 2px oklch(5% 0.010 258 / 0.32);
+    --shadow-tooltip: 0 1rem 2.5rem oklch(5% 0.010 258 / 0.42);
   }
 
   html,
@@ -362,6 +425,83 @@
     justify-content: flex-end;
     gap: var(--space-xs);
     min-width: 0;
+  }
+
+  .theme-toggle {
+    position: relative;
+    display: grid;
+    flex: 0 0 var(--control-height);
+    width: var(--control-height);
+    min-width: var(--control-height);
+    padding: 0;
+    place-items: center;
+    overflow: hidden;
+    border-color: transparent;
+    background: transparent;
+    color: var(--color-ink);
+  }
+
+  .theme-toggle:focus-visible {
+    outline-color: var(--color-focus);
+  }
+
+  .theme-toggle:active {
+    background: var(--color-paper-3);
+    color: var(--color-accent-strong);
+    transform: translateY(var(--space-3xs));
+  }
+
+  .theme-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .theme-toggle[aria-busy="true"] {
+    cursor: progress;
+  }
+
+  .theme-toggle[aria-busy="true"] .theme-icon {
+    opacity: 0.45;
+  }
+
+  .theme-toggle[data-state="error"] {
+    border-color: var(--color-error);
+    color: var(--color-error);
+  }
+
+  .theme-toggle[data-state="success"] {
+    border-color: var(--color-success);
+    color: var(--color-success);
+  }
+
+  .theme-icon {
+    grid-area: 1 / 1;
+    width: var(--space-md);
+    height: var(--space-md);
+    pointer-events: none;
+    transition:
+      opacity var(--dur-short) var(--ease-in-out),
+      transform var(--dur-short) var(--ease-in-out);
+  }
+
+  .theme-icon--moon {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+
+  .theme-icon--sun {
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.72);
+  }
+
+  html[data-theme="dark"] .theme-icon--moon {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.72);
+  }
+
+  html[data-theme="dark"] .theme-icon--sun {
+    opacity: 1;
+    transform: rotate(0) scale(1);
   }
 
   .badge {
@@ -1249,6 +1389,12 @@
       max-width: 55%;
     }
 
+    .environment .badge:first-of-type {
+      max-width: 6.5rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .section-title {
       display: block;
     }
@@ -1381,6 +1527,13 @@
     }
   }
 
+  @media (hover: hover) and (pointer: fine) {
+    .theme-toggle:hover {
+      background: var(--color-paper-2);
+      color: var(--color-accent-strong);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -1404,6 +1557,10 @@
     .audit-disclosure[open] .audit-table-shell {
       opacity: 1;
       transform: none;
+    }
+
+    .theme-icon {
+      transition-duration: 0ms !important;
     }
 
     button.is-loading::before {
@@ -1484,6 +1641,15 @@
       <div class="environment" aria-label="Environment status">
         <span id="mode-badge" class="badge">Loading</span>
         <span id="market-badge" class="badge market" style="display:none"></span>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch color theme" aria-pressed="false">
+          <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"></path>
+          </svg>
+          <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3.5"></circle>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
+        </button>
       </div>
     </div>
     <div class="control-deck" aria-label="Simulation controls">
@@ -1669,19 +1835,69 @@
 'use strict';
 const $ = (id) => document.getElementById(id);
 const cssToken = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-const COLORS = Array.from({ length: 11 }, (_, i) => cssToken(`--color-chart-${i + 1}`));
-const CHART = {
-  grid: cssToken('--color-chart-grid'),
-  muted: cssToken('--color-muted'),
-  ref: cssToken('--color-chart-ref'),
-  accent: cssToken('--color-chart-1'),
-};
+let COLORS = [];
+let CHART = {};
+
+function refreshChartTheme() {
+  COLORS = Array.from({ length: 11 }, (_, i) => cssToken(`--color-chart-${i + 1}`));
+  CHART = {
+    grid: cssToken('--color-chart-grid'),
+    muted: cssToken('--color-muted'),
+    ref: cssToken('--color-chart-ref'),
+    accent: cssToken('--color-chart-1'),
+  };
+}
+
+refreshChartTheme();
 
 const S = {
   status:null, listings:[], listing:null, bundle:null,
   scored:null, ctx:null, selected:new Set(), detailId:null, plan:null,
   E:1.8, horizon:90, hasRenderedLeaderboard:false,
 };
+
+const THEME_KEY = 'rabsh-theme';
+const themePreference = window.matchMedia('(prefers-color-scheme: dark)');
+
+function syncThemeToggle() {
+  const button = $('theme-toggle');
+  if (!button) return;
+  const isDark = document.documentElement.dataset.theme === 'dark';
+  const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+  button.setAttribute('aria-label', label);
+  button.setAttribute('aria-pressed', String(isDark));
+  button.title = label;
+}
+
+function applyTheme(theme, persist = false) {
+  const nextTheme = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = nextTheme;
+  if (persist) {
+    try { window.localStorage.setItem(THEME_KEY, nextTheme); } catch {}
+  }
+  syncThemeToggle();
+  refreshChartTheme();
+  if (S.scored) renderChart();
+}
+
+function initThemeToggle() {
+  syncThemeToggle();
+  $('theme-toggle').addEventListener('click', () => {
+    const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(nextTheme, true);
+  });
+
+  const followSystemTheme = (event) => {
+    let savedTheme = null;
+    try { savedTheme = window.localStorage.getItem(THEME_KEY); } catch {}
+    if (savedTheme !== 'light' && savedTheme !== 'dark') {
+      applyTheme(event.matches ? 'dark' : 'light');
+    }
+  };
+
+  if (themePreference.addEventListener) themePreference.addEventListener('change', followSystemTheme);
+  else themePreference.addListener(followSystemTheme);
+}
 
 const fmtMoney = (x,c) => (c==='EUR'?'€':c==='GBP'?'£':'$') + Math.round(x).toLocaleString();
 const fmtPct = (x) => (x>=0?'+':'') + (x*100).toFixed(1) + '%';
@@ -2190,6 +2406,7 @@ window.addEventListener('resize', () => {
     renderChart();
   });
 });
+initThemeToggle();
 boot();
 </script>
 </body>
