@@ -1,0 +1,17 @@
+{
+  "name": "rabsh",
+  "version": "1.0.0",
+  "description": "RABSH — Agentic Revenue Strategy Simulator + Executor for the Wheelhouse RM API. Zero dependencies.",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "replay": "node server.js --replay",
+    "test": "node test/run.js",
+    "fixture": "node scripts/make-synth-cache.js",
+    "record": "node scripts/record-demo.js",
+    "verify-audit": "node lib/verify.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

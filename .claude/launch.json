@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "rabsh-replay",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js", "--replay"],
+      "port": 8787
+    },
+    {
+      "name": "rabsh-live",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "port": 8787
+    }
+  ]
+}

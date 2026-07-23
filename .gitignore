@@ -1,0 +1,6 @@
+node_modules/
+data/cache/*
+!data/cache/.gitkeep
+!data/cache/demo-manifest.json
+data/audit.jsonl
+.env

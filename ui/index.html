@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RABSH — Revenue Strategy Simulator</title>
+<style>
+  :root {
+    --bg:#0b0f14; --panel:#121821; --panel2:#0e141c; --line:#1f2a38;
+    --text:#d7e1ec; --dim:#8195ab; --mono:'Consolas','SF Mono',monospace;
+    --accent:#3fd0c9; --good:#4ade80; --bad:#f87171; --warn:#fbbf24; --gold:#fde68a;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font:14px/1.5 'Segoe UI',system-ui,sans-serif; padding-bottom:60px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.14em; color:var(--dim); margin-bottom:12px; }
+  .num { font-family:var(--mono); }
+  button { background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:6px;
+    padding:7px 14px; cursor:pointer; font:inherit; }
+  button:hover { border-color:var(--accent); }
+  button.primary { background:var(--accent); color:#04211f; font-weight:700; border:none; }
+  button.danger { background:var(--bad); color:#2a0606; font-weight:700; border:none; }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  select,input[type=range] { background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:6px 8px; font:inherit; }
+  .wrap { max-width:1280px; margin:0 auto; padding:0 20px; }
+  header { position:sticky; top:0; z-index:10; background:rgba(11,15,20,.95); border-bottom:1px solid var(--line); backdrop-filter:blur(4px); }
+  .hbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:12px 0; }
+  .logo { font-weight:800; font-size:20px; letter-spacing:.06em; color:var(--accent); }
+  .logo small { color:var(--dim); font-weight:400; letter-spacing:0; margin-left:8px; font-size:12px; }
+  .badge { font-size:11px; padding:3px 9px; border-radius:20px; border:1px solid var(--line); color:var(--dim); }
+  .badge.replay { border-color:var(--warn); color:var(--warn); }
+  .badge.live { border-color:var(--good); color:var(--good); }
+  .badge.market { border-color:var(--accent); color:var(--accent); }
+  .spacer { flex:1; }
+  section { margin-top:26px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; color:var(--dim); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+    padding:6px 10px; border-bottom:1px solid var(--line); }
+  td { padding:8px 10px; border-bottom:1px solid rgba(31,42,56,.5); }
+  tr.clickable { cursor:pointer; }
+  tr.clickable:hover { background:rgba(63,208,201,.05); }
+  tr.winner { background:rgba(74,222,128,.06); }
+  tr.selected-row { outline:1px solid var(--accent); }
+  .pos { color:var(--good); } .neg { color:var(--bad); }
+  .risk { display:inline-block; font-size:11px; color:var(--warn); border:1px solid rgba(251,191,36,.4); border-radius:4px; padding:1px 6px; margin:1px 2px; }
+  .headline { font-size:15px; margin-bottom:14px; color:var(--gold); }
+  .headline b { font-size:18px; }
+  .controls { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .ctl label { font-size:11px; color:var(--dim); display:block; }
+  #chartbox { position:relative; }
+  #tooltip { position:absolute; display:none; background:#050a10; border:1px solid var(--line); border-radius:8px;
+    padding:10px 12px; font-size:12px; pointer-events:none; z-index:5; min-width:230px; box-shadow:0 8px 30px rgba(0,0,0,.6); }
+  #tooltip .tt-date { color:var(--accent); font-weight:700; margin-bottom:4px; }
+  #tooltip .tt-row { display:flex; justify-content:space-between; gap:14px; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; margin:8px 0 4px; font-size:12px; }
+  .legend label { display:flex; align-items:center; gap:5px; cursor:pointer; color:var(--dim); }
+  .legend .swatch { width:14px; height:3px; border-radius:2px; display:inline-block; }
+  pre { background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:12px; overflow:auto;
+    font-family:var(--mono); font-size:12px; max-height:320px; }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:900px){ .cols { grid-template-columns:1fr; } }
+  .difftable td { font-family:var(--mono); font-size:12px; vertical-align:top; }
+  .del { color:var(--bad); } .add { color:var(--good); }
+  .modebanner { padding:8px 12px; border-radius:6px; margin-bottom:12px; font-size:13px; }
+  .modebanner.rw { background:rgba(248,113,113,.12); border:1px solid rgba(248,113,113,.4); }
+  .modebanner.ro,.modebanner.replay { background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.35); }
+  .audit-ok { color:var(--good); font-weight:700; }
+  .audit-bad { color:var(--bad); font-weight:700; }
+  .hash { color:var(--dim); font-family:var(--mono); font-size:11px; }
+  .sens { display:flex; gap:4px; align-items:center; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+  .sens .pt { padding:2px 7px; border-radius:4px; border:1px solid var(--line); color:var(--dim); }
+  .sens .pt.cur { border-color:var(--accent); color:var(--accent); font-weight:700; }
+  .muted { color:var(--dim); font-size:12px; }
+  .scenario-detail-table { max-height:280px; overflow:auto; display:block; }
+  #status-msg { font-size:12px; color:var(--warn); }
+  .calib { font-size:12px; margin-top:8px; }
+  .calib.ok { color:var(--good); } .calib.fail { color:var(--bad); }
+  .composer { display:flex; gap:10px; flex-wrap:wrap; align-items:end; margin-top:10px; }
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <span class="logo">RABSH<small>revenue strategy simulator + executor</small></span>
+  <span id="mode-badge" class="badge">…</span>
+  <span id="market-badge" class="badge market" style="display:none"></span>
+  <span class="spacer"></span>
+  <div class="ctl"><label>Listing</label><select id="listing-picker"></select></div>
+  <div class="ctl"><label>Horizon</label>
+    <select id="horizon"><option value="30">30 days</option><option value="60">60 days</option><option value="90" selected>90 days</option></select></div>
+  <div class="ctl"><label>Elasticity E = <span id="eval" class="num">1.8</span></label>
+    <input id="elasticity" type="range" min="1" max="3" step="0.05" value="1.8" style="width:150px"></div>
+  <button id="simulate-btn" class="primary">▶ SIMULATE ALL</button>
+  <span id="status-msg"></span>
+</div></header>
+
+<div class="wrap">
+  <section id="leaderboard-section" style="display:none">
+    <h2>Strategy Leaderboard — expected revenue, next <span class="hz">90</span> days</h2>
+    <div class="panel">
+      <div id="headline" class="headline"></div>
+      <div id="calibration" class="calib"></div>
+      <table id="leaderboard">
+        <thead><tr><th>#</th><th>Strategy</th><th style="text-align:right">Exp. revenue</th>
+          <th style="text-align:right">Δ vs Hold Course</th><th style="text-align:right">Occ.</th>
+          <th style="text-align:right">ADR</th><th>Risk</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="failed-list" class="muted" style="margin-top:8px"></div>
+      <div class="sens" id="sensitivity"></div>
+    </div>
+  </section>
+
+  <section id="chart-section" style="display:none">
+    <h2>Daily price calendars — hover for per-day breakdown</h2>
+    <div class="panel">
+      <div class="legend" id="legend"></div>
+      <div id="chartbox"><svg id="chart" width="100%" height="340"></svg><div id="tooltip"></div></div>
+    </div>
+  </section>
+
+  <section id="detail-section" style="display:none">
+    <h2>Strategy detail — <span id="detail-name"></span></h2>
+    <div class="panel">
+      <p id="detail-rationale" style="margin-bottom:12px"></p>
+      <div class="cols">
+        <div><h2>Preview payload (exact API body)</h2><pre id="detail-payload"></pre></div>
+        <div><h2>Per-day projection</h2>
+          <table class="scenario-detail-table" id="detail-days">
+            <thead><tr><th>Date</th><th>Price</th><th>Ref</th><th>Ratio</th><th>Base occ</th><th>P(booked)</th><th>E[rev]</th></tr></thead>
+            <tbody></tbody></table></div>
+      </div>
+      <div style="margin-top:14px"><button id="plan-btn" class="primary">⚡ PLAN EXECUTION</button></div>
+    </div>
+  </section>
+
+  <section id="execute-section" style="display:none">
+    <h2>Execute — exact change, confirmed before anything is written</h2>
+    <div class="panel">
+      <div id="exec-mode" class="modebanner"></div>
+      <table class="difftable" id="diff-table">
+        <thead><tr><th>Preference path</th><th>Current</th><th>Proposed</th></tr></thead><tbody></tbody></table>
+      <div style="margin-top:14px; display:flex; gap:10px; align-items:center;">
+        <button id="apply-btn" class="danger">APPLY THIS STRATEGY</button>
+        <button id="copy-btn">📋 Copy exact PUT payload</button>
+        <span id="exec-status" class="muted"></span>
+      </div>
+      <div id="exec-result" style="margin-top:14px; display:none">
+        <h2>Post-execution readback</h2><pre id="readback"></pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="composer-section" style="display:none">
+    <h2>Custom strategy composer</h2>
+    <div class="panel">
+      <div class="composer">
+        <div class="ctl"><label>Base price</label>
+          <select id="c-base"><option value="">keep current</option><option value="con">Conservative</option><option value="rec">Recommended</option><option value="agg">Aggressive</option></select></div>
+        <div class="ctl"><label>Seasonality</label>
+          <select id="c-season"><option value="">keep current</option><option value="CON">Conservative</option><option value="REC">Recommended</option><option value="AGG">Aggressive</option></select></div>
+        <div class="ctl"><label>Last-minute discount</label>
+          <select id="c-lastmin"><option value="">none</option><option value="15">mild (≤15%)</option><option value="30">strong (≤30%)</option></select></div>
+        <div class="ctl"><label>Far-future premium</label>
+          <select id="c-far"><option value="">none</option><option value="10">+10% beyond 90d</option></select></div>
+        <div class="ctl"><label>Weekend uplift</label>
+          <select id="c-weekend"><option value="">none</option><option value="10">Fri +10 / Sat +12%</option></select></div>
+        <button id="compose-btn">Simulate custom</button>
+        <span id="compose-status" class="muted"></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="audit-section">
+    <h2>Audit trail — SHA-256 hash chain</h2>
+    <div class="panel">
+      <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+        <button id="verify-btn">🔒 VERIFY CHAIN</button>
+        <span id="verify-result"></span>
+        <span class="spacer"></span>
+        <span class="muted">Tamper with any line of <span class="num">data/audit.jsonl</span> and verification fails at that line.</span>
+      </div>
+      <table id="audit-table">
+        <thead><tr><th>#</th><th>Time</th><th>Event</th><th>Payload hash</th><th>Chain hash</th></tr></thead>
+        <tbody></tbody></table>
+    </div>
+  </section>
+</div>
+
+<script src="/lib/demand.js"></script>
+<script src="/lib/score.js"></script>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const COLORS = ['#4ade80','#3fd0c9','#fbbf24','#f87171','#a78bfa','#fb923c','#60a5fa','#f472b6','#facc15','#34d399','#e879f9'];
+
+const S = {
+  status:null, listings:[], listing:null, bundle:null,
+  scored:null, ctx:null, selected:new Set(), detailId:null, plan:null,
+  E:1.8, horizon:90,
+};
+
+const fmtMoney = (x,c) => (c==='EUR'?'€':c==='GBP'?'£':'$') + Math.round(x).toLocaleString();
+const fmtPct = (x) => (x>=0?'+':'') + (x*100).toFixed(1) + '%';
+
+async function api(path, opts) {
+  const r = await fetch(path, opts ? { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(opts) } : undefined);
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+
+// ---------- boot ----------
+async function boot() {
+  S.status = await api('/api/status');
+  const badge = $('mode-badge');
+  if (S.status.replay) { badge.textContent = 'REPLAY MODE — zero network'; badge.className = 'badge replay'; }
+  else { badge.textContent = 'LIVE · executor: ' + S.status.executor_mode.toUpperCase(); badge.className = 'badge live'; }
+
+  try {
+    const lr = await api('/api/listings');
+    S.listings = lr.data || lr;
+  } catch (e) { setStatus('Could not load listings: ' + e.message); return; }
+
+  const picker = $('listing-picker');
+  picker.innerHTML = '';
+  for (const l of S.listings) {
+    const o = document.createElement('option');
+    o.value = l.id;
+    const label = l.nickname || l.title || l.name || 'Listing';
+    o.textContent = `${label} (${l.id})`;
+    if (l.id === 64473584) o.selected = true;
+    picker.appendChild(o);
+  }
+  pickListing();
+  refreshAudit();
+}
+function pickListing() {
+  const id = Number($('listing-picker').value);
+  S.listing = S.listings.find((l) => l.id === id) || S.listings[0];
+  const mb = $('market-badge');
+  if (S.listing) { mb.style.display=''; mb.textContent = (S.listing.market_name || ('market ' + S.listing.market_id)) + ' · ' + S.listing.channel; }
+}
+function setStatus(msg) { $('status-msg').textContent = msg || ''; }
+
+// ---------- simulate ----------
+async function simulateAll() {
+  if (!S.listing) return;
+  const btn = $('simulate-btn');
+  btn.disabled = true; setStatus('Simulating ' + (S.status.replay ? '(from cache)…' : '(live, rate-limited ~15s)…'));
+  try {
+    S.bundle = await api('/api/simulate', { listing_id: S.listing.id, channel: S.listing.channel });
+    buildCtx();
+    S.selected = new Set(['hold_course']);
+    const firstScore = RabshScore.scoreAll(S.bundle.previews, S.ctx, { elasticity:S.E, horizon:S.horizon });
+    if (firstScore.ranked[0]) S.selected.add(firstScore.ranked[0].id);
+    rescore();
+    ['leaderboard-section','chart-section','composer-section'].forEach((s)=>$(s).style.display='');
+    setStatus('');
+  } catch (e) { setStatus('Simulation failed: ' + e.message); }
+  finally { btn.disabled = false; refreshAudit(); }
+}
+
+function extractOccWindows(kpis, key) {
+  if (!kpis) return null;
+  if (kpis[key] && typeof kpis[key] === 'object') return kpis[key];
+  // tolerate flat shapes like occupancy_0_7
+  const out = {}; let found = false;
+  for (const w of ['0_7','0_30','0_60','0_90','0_365']) {
+    const v = kpis[key + '_' + w];
+    if (v != null && isFinite(Number(v))) { out[w] = Number(v); found = true; }
+  }
+  return found ? out : null;
+}
+
+function buildCtx() {
+  const b = S.bundle;
+  const refByDate = {};
+  const baseRows = (b.baseline && (b.baseline.data || b.baseline)) || [];
+  const attrByDate = {};
+  for (const r of baseRows) {
+    if (r && r.stay_date && r.price > 0) {
+      refByDate[r.stay_date] = Number(r.price);
+      const attrs = {};
+      for (const k of Object.keys(r)) if (k.startsWith('attr_')) attrs[k] = r[k];
+      attrByDate[r.stay_date] = attrs;
+    }
+  }
+  const occ = extractOccWindows(b.kpis, 'occupancy');
+  const floorRows = (b.min_max && b.min_max.data) || [];
+  const floorByDate = {};
+  for (const r of floorRows) if (r && r.stay_date && r.min_price > 0) floorByDate[r.stay_date] = Number(r.min_price);
+  const hold = b.previews.find((p)=>p.id==='hold_course');
+  S.ctx = {
+    refByDate,
+    attrByDate,
+    bands: RabshDemand.occupancyBands(occ),
+    seasonality: RabshDemand.seasonalityMap(b.seasonality),
+    startDate: hold && hold.days[0] ? hold.days[0].stay_date : null,
+    floorByDate: Object.keys(floorByDate).length ? floorByDate : null,
+    currency: (hold && hold.days[0] && hold.days[0].currency) || 'USD',
+  };
+}
+
+// ---------- scoring & leaderboard ----------
+function rescore() {
+  if (!S.bundle) return;
+  S.scored = RabshScore.scoreAll(S.bundle.previews, S.ctx, { elasticity:S.E, horizon:S.horizon });
+  renderLeaderboard(); renderSensitivity(); renderChart();
+  if (S.detailId) renderDetail(S.detailId);
+}
+
+function renderLeaderboard() {
+  const { ranked, failed, hold } = S.scored;
+  const c = S.ctx.currency;
+  document.querySelectorAll('.hz').forEach((el)=>el.textContent=S.horizon);
+  const tbody = $('leaderboard').querySelector('tbody');
+  tbody.innerHTML = '';
+  const winner = ranked[0];
+  if (winner && hold) {
+    const d = winner.delta_vs_hold;
+    $('headline').innerHTML = winner.id === 'hold_course'
+      ? 'Your current strategy is already the projected winner at E=' + S.E.toFixed(2) + '.'
+      : `<b>${winner.name}</b> projects <b class="${d>=0?'pos':'neg'}">${d>=0?'+':'−'}${fmtMoney(Math.abs(d),c)}</b> (${fmtPct(winner.delta_pct_vs_hold)}) over Hold Course in the next ${S.horizon} days.`;
+  }
+  const cal = S.bundle.calibration;
+  $('calibration').className = 'calib ' + (cal && cal.ok ? 'ok' : 'fail');
+  $('calibration').textContent = cal ? ('Calibration probe: ' + cal.reason) : '';
+
+  ranked.forEach((s, i) => {
+    const tr = document.createElement('tr');
+    tr.className = 'clickable' + (i===0?' winner':'') + (s.id===S.detailId?' selected-row':'');
+    const d = s.delta_vs_hold;
+    tr.innerHTML = `<td class="num">${i+1}</td>
+      <td><b>${s.name}</b><br><span class="muted">${s.thesis||''}</span></td>
+      <td class="num" style="text-align:right">${fmtMoney(s.totals.revenue,c)}</td>
+      <td class="num ${d>=0?'pos':'neg'}" style="text-align:right">${s.id==='hold_course'?'—':(d>=0?'+':'−')+fmtMoney(Math.abs(d),c)+'<br><span class="muted">'+fmtPct(s.delta_pct_vs_hold)+'</span>'}</td>
+      <td class="num" style="text-align:right">${(s.totals.occupancy*100).toFixed(0)}%</td>
+      <td class="num" style="text-align:right">${fmtMoney(s.totals.adr,c)}</td>
+      <td>${s.risks.map((r)=>`<span class="risk" title="${r.label}">⚠ ${r.code.replace('_',' ')}</span>`).join('')}</td>
+      <td><input type="checkbox" ${S.selected.has(s.id)?'checked':''} title="show on chart" data-chart="${s.id}"></td>`;
+    tr.addEventListener('click', (ev) => {
+      if (ev.target.dataset && ev.target.dataset.chart) {
+        if (ev.target.checked) S.selected.add(s.id); else S.selected.delete(s.id);
+        renderChart(); return;
+      }
+      S.detailId = s.id; renderDetail(s.id); renderLeaderboard();
+      $('detail-section').scrollIntoView({behavior:'smooth'});
+      api('/api/audit/event', { event:'decision.selected', payload:{ scenario:s.id, elasticity:S.E, horizon:S.horizon, expected_revenue:Math.round(s.totals.revenue) } }).then(refreshAudit).catch(()=>{});
+    });
+    tbody.appendChild(tr);
+  });
+  $('failed-list').textContent = failed.length
+    ? 'Failed scenarios (excluded from ranking): ' + failed.map((f)=>`${f.name} — ${f.error}`).join(' · ') : '';
+  $('detail-section').style.display = S.detailId ? '' : 'none';
+}
+
+function renderSensitivity() {
+  const sens = RabshScore.sensitivity(S.bundle.previews, S.ctx, S.horizon);
+  const el = $('sensitivity');
+  el.innerHTML = '<span class="muted">Winner by elasticity:</span> ' + sens.map((pt) =>
+    `<span class="pt ${Math.abs(pt.elasticity-S.E)<=0.125?'cur':''}" title="E=${pt.elasticity}">E${pt.elasticity}: ${pt.winner_name||'—'}</span>`).join('');
+}
+
+// ---------- chart ----------
+function renderChart() {
+  if (!S.scored) return;
+  const svg = $('chart');
+  const W = svg.clientWidth || 1100, H = 340, padL = 56, padR = 16, padT = 14, padB = 26;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const series = S.scored.ranked.filter((s)=>S.selected.has(s.id));
+  const legend = $('legend');
+  legend.innerHTML = '';
+  S.scored.ranked.forEach((s, i) => {
+    const color = COLORS[i % COLORS.length];
+    const lab = document.createElement('label');
+    lab.innerHTML = `<input type="checkbox" ${S.selected.has(s.id)?'checked':''}> <span class="swatch" style="background:${color}"></span>${s.name}`;
+    lab.querySelector('input').addEventListener('change', (e)=>{ e.target.checked?S.selected.add(s.id):S.selected.delete(s.id); renderChart(); });
+    legend.appendChild(lab);
+  });
+  if (!series.length) { svg.innerHTML=''; return; }
+
+  const days = series[0].rows.map((r)=>r.stay_date);
+  let min = Infinity, max = -Infinity;
+  for (const s of series) for (const r of s.rows) { min = Math.min(min, r.price, r.ref); max = Math.max(max, r.price, r.ref); }
+  min *= 0.94; max *= 1.05;
+  const x = (i) => padL + (i / Math.max(1, days.length - 1)) * (W - padL - padR);
+  const y = (v) => padT + (1 - (v - min) / (max - min)) * (H - padT - padB);
+
+  let g = '';
+  for (let t = 0; t <= 4; t++) {
+    const v = min + (t / 4) * (max - min);
+    g += `<line x1="${padL}" y1="${y(v)}" x2="${W-padR}" y2="${y(v)}" stroke="#1f2a38" stroke-width="1"/>` +
+         `<text x="${padL-8}" y="${y(v)+4}" fill="#8195ab" font-size="11" text-anchor="end" font-family="Consolas">${fmtMoney(v,S.ctx.currency)}</text>`;
+  }
+  for (let i = 0; i < days.length; i += Math.ceil(days.length / 9)) {
+    g += `<text x="${x(i)}" y="${H-8}" fill="#8195ab" font-size="10" text-anchor="middle" font-family="Consolas">${days[i].slice(5)}</text>`;
+  }
+  // reference (baseline recommended) as dashed grey
+  const refPath = series[0].rows.map((r,i)=>`${i?'L':'M'}${x(i)},${y(r.ref)}`).join('');
+  g += `<path d="${refPath}" fill="none" stroke="#5a6c80" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  g += `<text x="${W-padR-4}" y="${y(series[0].rows[series[0].rows.length-1].ref)-6}" fill="#5a6c80" font-size="10" text-anchor="end">market ref</text>`;
+
+  for (const s of series) {
+    const idx = S.scored.ranked.indexOf(s);
+    const color = COLORS[idx % COLORS.length];
+    const p = s.rows.map((r,i)=>`${i?'L':'M'}${x(i)},${y(r.price)}`).join('');
+    g += `<path d="${p}" fill="none" stroke="${color}" stroke-width="2"/>`;
+  }
+  g += `<line id="hoverline" x1="0" y1="${padT}" x2="0" y2="${H-padB}" stroke="#3fd0c9" stroke-width="1" opacity="0"/>`;
+  svg.innerHTML = g;
+
+  svg.onmousemove = (ev) => {
+    const rect = svg.getBoundingClientRect();
+    const mx = (ev.clientX - rect.left) * (W / rect.width);
+    const i = Math.round(((mx - padL) / (W - padL - padR)) * (days.length - 1));
+    if (i < 0 || i >= days.length) { hideTip(); return; }
+    const hl = svg.querySelector('#hoverline');
+    hl.setAttribute('x1', x(i)); hl.setAttribute('x2', x(i)); hl.setAttribute('opacity', '1');
+    const date = days[i];
+    const attrs = S.ctx.attrByDate[date] || {};
+    let html = `<div class="tt-date">${date}</div>`;
+    for (const s of series) {
+      const idx = S.scored.ranked.indexOf(s);
+      const r = s.rows[i];
+      if (!r) continue;
+      html += `<div class="tt-row"><span style="color:${COLORS[idx%COLORS.length]}">${s.name}</span>` +
+        `<span class="num">${fmtMoney(r.price,S.ctx.currency)} · P=${(r.p_booked*100).toFixed(0)}%</span></div>`;
+    }
+    html += `<div class="tt-row muted"><span>market ref</span><span class="num">${fmtMoney(series[0].rows[i].ref,S.ctx.currency)}</span></div>`;
+    const attrKeys = Object.keys(attrs);
+    if (attrKeys.length) {
+      html += '<hr style="border-color:#1f2a38; margin:6px 0">';
+      for (const k of attrKeys) html += `<div class="tt-row muted"><span>${k.replace('attr_','').replace(/_/g,' ')}</span><span class="num">${typeof attrs[k]==='number'&&Math.abs(attrs[k])<5?fmtPct(attrs[k]):attrs[k]}</span></div>`;
+    }
+    const tip = $('tooltip');
+    tip.innerHTML = html; tip.style.display = 'block';
+    const bx = $('chartbox').getBoundingClientRect();
+    const left = ev.clientX - bx.left + 16;
+    tip.style.left = Math.min(left, bx.width - 260) + 'px';
+    tip.style.top = (ev.clientY - bx.top + 10) + 'px';
+  };
+  svg.onmouseleave = hideTip;
+  function hideTip(){ $('tooltip').style.display='none'; const hl=svg.querySelector('#hoverline'); if(hl)hl.setAttribute('opacity','0'); }
+}
+
+// ---------- detail & execute ----------
+function renderDetail(id) {
+  const s = S.scored.ranked.find((x)=>x.id===id);
+  if (!s) return;
+  $('detail-section').style.display = '';
+  $('detail-name').textContent = s.name;
+  $('detail-rationale').textContent = s.rationale;
+  $('detail-payload').textContent = JSON.stringify(s.payload, null, 2);
+  const tbody = $('detail-days').querySelector('tbody');
+  tbody.innerHTML = s.rows.map((r)=>`<tr>
+    <td class="num">${r.stay_date}</td><td class="num">${fmtMoney(r.price,S.ctx.currency)}</td>
+    <td class="num">${fmtMoney(r.ref,S.ctx.currency)}</td><td class="num">${r.ratio.toFixed(2)}</td>
+    <td class="num">${(r.base_occ*100).toFixed(0)}%</td><td class="num">${(r.p_booked*100).toFixed(0)}%</td>
+    <td class="num">${fmtMoney(r.expected_revenue,S.ctx.currency)}</td></tr>`).join('');
+  $('plan-btn').disabled = id === 'hold_course';
+  $('plan-btn').title = id === 'hold_course' ? 'Hold Course changes nothing' : '';
+}
+
+async function planExecution() {
+  const s = S.scored.ranked.find((x)=>x.id===S.detailId);
+  if (!s) return;
+  $('plan-btn').disabled = true;
+  try {
+    S.plan = await api('/api/execute/plan', { listing_id:S.listing.id, channel:S.listing.channel, payload:s.payload, scenario_id:s.id });
+    renderExecPanel();
+    $('execute-section').style.display = '';
+    $('execute-section').scrollIntoView({behavior:'smooth'});
+  } catch (e) { setStatus('Plan failed: ' + e.message); }
+  finally { $('plan-btn').disabled = false; refreshAudit(); }
+}
+
+function renderExecPanel() {
+  const p = S.plan;
+  const mb = $('exec-mode');
+  mb.className = 'modebanner ' + p.mode;
+  mb.textContent = p.mode === 'rw'
+    ? '⚠ LIVE WRITE MODE — clicking APPLY sends this exact PUT to Wheelhouse and updates real preferences.'
+    : p.mode === 'replay'
+    ? 'REPLAY MODE — APPLY will simulate the write; the exact PUT payload is shown and copyable.'
+    : 'READ-ONLY MODE (no WHEELHOUSE_KEY_RW) — copy the exact PUT payload below and apply it yourself.';
+  const tbody = $('diff-table').querySelector('tbody');
+  tbody.innerHTML = p.diff.length ? p.diff.map((d)=>`<tr>
+    <td>${d.path}</td>
+    <td class="del">${JSON.stringify(d.before)}</td>
+    <td class="add">${JSON.stringify(d.after)}</td></tr>`).join('')
+    : '<tr><td colspan="3" class="muted">No differences — preferences already match this strategy.</td></tr>';
+  $('apply-btn').disabled = !p.diff.length;
+  $('exec-result').style.display = 'none';
+  $('exec-status').textContent = 'diff hash ' + p.diff_hash.slice(0,16) + '…';
+}
+
+async function applyExecution() {
+  if (!S.plan) return;
+  const btn = $('apply-btn');
+  btn.disabled = true; $('exec-status').textContent = 'Applying…';
+  try {
+    const r = await api('/api/execute/apply', { diff_hash:S.plan.diff_hash });
+    $('exec-result').style.display = '';
+    if (r.simulated) {
+      $('exec-status').textContent = r.message;
+      $('readback').textContent = JSON.stringify(r.plan.put_body, null, 2);
+    } else {
+      $('exec-status').innerHTML = `<span class="pos">✓ Applied (PUT ${r.put_status}). Readback confirms:</span>`;
+      $('readback').textContent = JSON.stringify(r.readback, null, 2);
+    }
+  } catch (e) { $('exec-status').textContent = 'Apply failed: ' + e.message; btn.disabled = false; }
+  refreshAudit();
+}
+
+function copyPayload() {
+  if (!S.plan) return;
+  navigator.clipboard.writeText(JSON.stringify(S.plan.put_body, null, 2))
+    .then(()=>{ $('exec-status').textContent = 'PUT payload copied to clipboard.'; });
+}
+
+// ---------- custom composer ----------
+async function composeCustom() {
+  if (!S.bundle) return;
+  const a = S.bundle.anchors;
+  const payload = {};
+  const base = $('c-base').value; if (base) payload.base_price = a[base];
+  const season = $('c-season').value; if (season) payload.seasonality_adjustment = { type: season, rules: [] };
+  const lm = $('c-lastmin').value;
+  if (lm) payload.last_minute_discount = { active:true, rules:[{days:3,amount:Number(lm),amount_type:'percent'},{days:7,amount:Math.round(lm*0.6),amount_type:'percent'},{days:14,amount:Math.round(lm*0.3),amount_type:'percent'}] };
+  const far = $('c-far').value; if (far) payload.far_future_premium = { active:true, rules:[{days:90,amount:Number(far),amount_type:'percent'}] };
+  const wk = $('c-weekend').value; if (wk) payload.day_of_week = { friday:10, saturday:12 };
+  if (!Object.keys(payload).length) { $('compose-status').textContent = 'Pick at least one lever.'; return; }
+  $('compose-status').textContent = 'Simulating…';
+  try {
+    const r = await api('/api/simulate/custom', { listing_id:S.listing.id, channel:S.listing.channel, payload });
+    S.bundle.previews = S.bundle.previews.filter((p)=>p.id!=='custom');
+    S.bundle.previews.push({ id:'custom', name:'Custom', thesis:'User-composed strategy.', payload, days:r.days });
+    S.selected.add('custom');
+    rescore();
+    $('compose-status').textContent = '✓ Added to leaderboard.';
+  } catch (e) { $('compose-status').textContent = 'Failed: ' + e.message; }
+  refreshAudit();
+}
+
+// ---------- audit ----------
+async function refreshAudit() {
+  try {
+    const r = await api('/api/audit');
+    const tbody = $('audit-table').querySelector('tbody');
+    tbody.innerHTML = r.entries.slice(-25).reverse().map((e)=>`<tr>
+      <td class="num">${e.seq}</td><td class="num">${e.ts.replace('T',' ').slice(0,19)}</td>
+      <td><b>${e.event}</b></td>
+      <td class="hash">${e.payload_hash.slice(0,16)}…</td>
+      <td class="hash">${e.prev_hash.slice(0,10)}→${e.hash.slice(0,10)}</td></tr>`).join('');
+  } catch {}
+}
+async function verifyAudit() {
+  $('verify-result').textContent = 'Verifying…';
+  try {
+    const r = await api('/api/audit/verify');
+    $('verify-result').innerHTML = r.ok
+      ? `<span class="audit-ok">✓ CHAIN INTACT — ${r.entries} entries verified</span>`
+      : `<span class="audit-bad">✗ CHAIN BROKEN at line ${r.brokenAt}: ${r.reason}</span>`;
+  } catch (e) { $('verify-result').textContent = e.message; }
+  refreshAudit();
+}
+
+// ---------- wiring ----------
+$('simulate-btn').addEventListener('click', simulateAll);
+$('listing-picker').addEventListener('change', pickListing);
+$('elasticity').addEventListener('input', (e)=>{ S.E = Number(e.target.value); $('eval').textContent = S.E.toFixed(2); rescore(); });
+$('horizon').addEventListener('change', (e)=>{ S.horizon = Number(e.target.value); rescore(); });
+$('plan-btn').addEventListener('click', planExecution);
+$('apply-btn').addEventListener('click', applyExecution);
+$('copy-btn').addEventListener('click', copyPayload);
+$('compose-btn').addEventListener('click', composeCustom);
+$('verify-btn').addEventListener('click', verifyAudit);
+window.addEventListener('resize', ()=>renderChart());
+boot();
+</script>
+</body>
+</html>
