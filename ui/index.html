@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RABSH — Revenue Strategy Simulator</title>
+<title>RABSH | Revenue Strategy Simulator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -24,6 +24,7 @@
 <style>
   /* Hallmark · genre: modern-minimal · macrostructure: Workbench · theme: Cobalt dual-mode · polish: control clarity + result hierarchy + audit disclosure · nav: N9 · footer: Ft2 */
   /* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
+  /* Taste pass · redesign-preserve · variance 6 · motion 5 · density 7 */
   :root {
     color-scheme: light;
 
@@ -475,9 +476,14 @@
   }
 
   .theme-icon {
+    display: grid;
     grid-area: 1 / 1;
     width: var(--space-md);
     height: var(--space-md);
+    place-items: center;
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    line-height: 1;
     pointer-events: none;
     transition:
       opacity var(--dur-short) var(--ease-in-out),
@@ -630,6 +636,12 @@
     padding-block: var(--space-xl) var(--space-2xl);
   }
 
+  .has-results .intro {
+    gap: var(--space-lg);
+    padding-block: var(--space-lg) var(--space-xl);
+    border-bottom: var(--rule-thin) solid var(--color-rule);
+  }
+
   .intro-copy {
     max-width: 48rem;
     animation: reveal var(--dur-long) var(--ease-out) both;
@@ -654,6 +666,22 @@
     margin: var(--space-lg) 0 0;
     color: var(--color-muted);
     font-size: var(--text-md);
+  }
+
+  .has-results .intro h1 {
+    max-width: 20ch;
+    font-size: clamp(var(--text-xl), 3vw + var(--text-base), var(--text-3xl));
+    line-height: 1;
+  }
+
+  .has-results .intro p {
+    max-width: 68ch;
+    margin-top: var(--space-sm);
+    font-size: var(--text-base);
+  }
+
+  .has-results .workflow span {
+    padding-block: var(--space-xs);
   }
 
   .workflow {
@@ -721,11 +749,10 @@
   }
 
   .section-title {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-lg);
-    margin-bottom: var(--space-sm);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2xs);
+    margin-bottom: var(--space-md);
   }
 
   h2 {
@@ -742,7 +769,7 @@
   }
 
   .section-title p {
-    max-width: 52ch;
+    max-width: 65ch;
     margin: 0;
     color: var(--color-muted);
     font-size: var(--text-sm);
@@ -1130,65 +1157,66 @@
     min-height: 1lh;
   }
 
-  .dark-band {
+  .audit-band {
     margin-top: var(--space-2xl);
     padding-block: var(--space-xl);
-    background: var(--color-graphite);
-    color: var(--color-graphite-ink);
-    box-shadow: 0 0 0 100vmax var(--color-graphite);
+    border-block: var(--rule-thin) solid var(--color-rule);
+    background: var(--color-paper-2);
+    color: var(--color-ink-2);
+    box-shadow: 0 0 0 100vmax var(--color-paper-2);
     clip-path: inset(0 -100vmax);
   }
 
-  .dark-band h2 {
-    color: var(--color-graphite-ink);
+  .audit-band h2 {
+    color: var(--color-ink);
   }
 
-  .dark-band .section-title p,
-  .dark-band .muted,
-  .dark-band .hash,
-  .dark-band th {
-    color: var(--color-graphite-muted);
+  .audit-band .section-title p,
+  .audit-band .muted,
+  .audit-band .hash,
+  .audit-band th {
+    color: var(--color-muted);
   }
 
-  .dark-band .panel {
+  .audit-band .panel {
     padding: 0;
-    border-color: var(--color-graphite-2);
-    background: var(--color-graphite);
-    color: var(--color-graphite-ink);
+    border-color: var(--color-rule);
+    background: var(--color-paper-raised);
+    color: var(--color-ink-2);
     box-shadow: none;
   }
 
-  .dark-band td,
-  .dark-band th {
-    border-color: var(--color-graphite-2);
+  .audit-band td,
+  .audit-band th {
+    border-color: var(--color-rule);
   }
 
-  .dark-band button {
-    border-color: var(--color-graphite-muted);
-    background: var(--color-graphite-2);
-    color: var(--color-graphite-ink);
+  .audit-band button {
+    border-color: var(--color-rule-strong);
+    background: var(--color-paper-raised);
+    color: var(--color-ink);
   }
 
-  .dark-band button:focus-visible {
+  .audit-band button:focus-visible {
     outline-color: var(--color-accent);
   }
 
-  .dark-band .audit-ok {
-    color: var(--color-success-on-dark);
+  .audit-band .audit-ok {
+    color: var(--color-success);
   }
 
-  .dark-band .audit-bad {
-    color: var(--color-error-on-dark);
+  .audit-band .audit-bad {
+    color: var(--color-error);
   }
 
-  .dark-band .audit-actions {
+  .audit-band .audit-actions {
     margin: 0;
     padding: var(--space-md);
-    border-bottom: var(--rule-thin) solid var(--color-graphite-2);
+    border-bottom: var(--rule-thin) solid var(--color-rule);
   }
 
   .audit-disclosure {
-    border-bottom: var(--rule-thin) solid var(--color-graphite-2);
+    border-bottom: var(--rule-thin) solid var(--color-rule);
   }
 
   .audit-disclosure summary {
@@ -1198,7 +1226,7 @@
     gap: var(--space-md);
     min-height: var(--control-height);
     padding: var(--space-sm) var(--space-md);
-    color: var(--color-graphite-ink);
+    color: var(--color-ink);
     font-weight: 600;
     list-style: none;
     cursor: pointer;
@@ -1210,7 +1238,7 @@
   }
 
   .audit-disclosure summary::after {
-    color: var(--color-graphite-muted);
+    color: var(--color-muted);
     content: "Show";
     font-family: var(--font-mono);
     font-size: var(--text-xs);
@@ -1229,7 +1257,7 @@
   }
 
   .audit-disclosure summary:active {
-    background: var(--color-graphite-2);
+    background: var(--color-paper-3);
   }
 
   .audit-disclosure[open] .audit-table-shell {
@@ -1238,7 +1266,7 @@
 
   .audit-summary-meta {
     margin-inline-start: auto;
-    color: var(--color-graphite-muted);
+    color: var(--color-muted);
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     font-weight: 400;
@@ -1297,7 +1325,7 @@
     }
 
     .audit-disclosure summary:hover {
-      background: var(--color-graphite-2);
+      background: var(--color-paper-3);
     }
 
     select:not(:disabled):hover {
@@ -1380,8 +1408,7 @@
 
   @media (max-width: 39.99rem) {
     .logo small,
-    .badge.market,
-    .section-title p {
+    .badge.market {
       display: none;
     }
 
@@ -1395,8 +1422,29 @@
       text-overflow: ellipsis;
     }
 
-    .section-title {
-      display: block;
+    .has-results .intro {
+      gap: var(--space-md);
+      padding-block: var(--space-md) var(--space-lg);
+    }
+
+    .has-results .intro p {
+      display: none;
+    }
+
+    .has-results .workflow {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .has-results .workflow span {
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      gap: var(--space-2xs);
+      padding-block: var(--space-sm);
+      font-size: var(--text-xs);
+    }
+
+    .has-results .workflow b {
+      width: 1.5rem;
+      height: 1.5rem;
     }
 
     .panel {
@@ -1468,13 +1516,13 @@
       display: none;
     }
 
-    .dark-band tbody tr,
-    .dark-band td {
-      border-color: var(--color-graphite-2);
+    .audit-band tbody tr,
+    .audit-band td {
+      border-color: var(--color-rule);
     }
 
-    .dark-band td::before {
-      color: var(--color-graphite-muted);
+    .audit-band td::before {
+      color: var(--color-muted);
     }
 
     #chartbox {
@@ -1642,13 +1690,8 @@
         <span id="mode-badge" class="badge">Loading</span>
         <span id="market-badge" class="badge market" style="display:none"></span>
         <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch color theme" aria-pressed="false">
-          <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"></path>
-          </svg>
-          <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="3.5"></circle>
-            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
-          </svg>
+          <span class="theme-icon theme-icon--moon" aria-hidden="true">&#9790;</span>
+          <span class="theme-icon theme-icon--sun" aria-hidden="true">&#9728;&#65038;</span>
         </button>
       </div>
     </div>
@@ -1796,7 +1839,7 @@
     </div>
   </section>
 
-  <section id="audit-section" class="workspace-section dark-band">
+  <section id="audit-section" class="workspace-section audit-band">
     <div class="section-title">
       <h2>Audit trail</h2>
       <p>Every decision and write is linked through a SHA-256 hash chain.</p>
@@ -1825,7 +1868,7 @@
 
   <footer class="app-footer">
     <strong>RABSH</strong>
-    <span>Simulate first · inspect the diff · preserve the audit trail</span>
+    <span>Simulate first. Inspect the diff. Preserve the audit trail.</span>
   </footer>
 </main>
 
@@ -1856,6 +1899,7 @@ const S = {
   E:1.8, horizon:90, hasRenderedLeaderboard:false,
 };
 
+const cleanUiText = (value) => String(value ?? '').replace(/[\u2013\u2014]/g, '-');
 const THEME_KEY = 'rabsh-theme';
 const themePreference = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -1926,7 +1970,7 @@ async function boot() {
   for (const l of S.listings) {
     const o = document.createElement('option');
     o.value = l.id;
-    const label = l.nickname || l.title || l.name || 'Listing';
+    const label = cleanUiText(l.nickname || l.title || l.name || 'Listing');
     o.textContent = `${label} (${l.id})`;
     if (l.id === 64473584) o.selected = true;
     picker.appendChild(o);
@@ -1940,9 +1984,9 @@ function pickListing() {
   const id = Number($('listing-picker').value);
   S.listing = S.listings.find((l) => l.id === id) || S.listings[0];
   const mb = $('market-badge');
-  if (S.listing) { mb.style.display=''; mb.textContent = (S.listing.market_name || ('market ' + S.listing.market_id)) + ' · ' + S.listing.channel; }
+  if (S.listing) { mb.style.display=''; mb.textContent = cleanUiText(S.listing.market_name || ('market ' + S.listing.market_id)) + ' · ' + cleanUiText(S.listing.channel); }
 }
-function setStatus(msg) { $('status-msg').textContent = msg || ''; }
+function setStatus(msg) { $('status-msg').textContent = cleanUiText(msg); }
 function setWorkflowStage(stage) {
   const workflow = document.querySelector('.workflow');
   if (!workflow) return;
@@ -1999,6 +2043,7 @@ async function simulateAll() {
     S.hasRenderedLeaderboard = false;
     rescore();
     ['leaderboard-section','chart-section','composer-section'].forEach((s)=>$(s).style.display='');
+    document.body.classList.add('has-results');
     renderChart();
     setWorkflowStage('compare');
     setStatus('');
@@ -2074,11 +2119,11 @@ function renderLeaderboard() {
     const d = winner.delta_vs_hold;
     $('headline').innerHTML = winner.id === 'hold_course'
       ? 'Your current strategy is already the projected winner at E=' + S.E.toFixed(2) + '.'
-      : `<b>${winner.name}</b> projects <b class="${d>=0?'pos':'neg'}">${d>=0?'+':'−'}${fmtMoney(Math.abs(d),c)}</b> (${fmtPct(winner.delta_pct_vs_hold)}) over Hold Course in the next ${S.horizon} days.`;
+      : `<b>${cleanUiText(winner.name)}</b> projects <b class="${d>=0?'pos':'neg'}">${d>=0?'+':'−'}${fmtMoney(Math.abs(d),c)}</b> (${fmtPct(winner.delta_pct_vs_hold)}) over Hold Course in the next ${S.horizon} days.`;
   }
   const cal = S.bundle.calibration;
   $('calibration').className = 'calib ' + (cal && cal.ok ? 'ok' : 'fail');
-  $('calibration').textContent = cal ? ('Calibration probe: ' + cal.reason) : '';
+  $('calibration').textContent = cal ? ('Calibration probe: ' + cleanUiText(cal.reason)) : '';
 
   const animateRows = !S.hasRenderedLeaderboard;
   ranked.forEach((s, i) => {
@@ -2089,19 +2134,19 @@ function renderLeaderboard() {
       tr.classList.add('is-entering');
       tr.style.setProperty('--row-delay', Math.min(i, 6) * 45 + 'ms');
     }
-    tr.setAttribute('aria-label', `${i + 1}. ${s.name}. Open strategy detail.`);
+    tr.setAttribute('aria-label', `${i + 1}. ${cleanUiText(s.name)}. Open strategy detail.`);
     const d = s.delta_vs_hold;
     const delta = s.id === 'hold_course'
-      ? '—'
+      ? 'Baseline'
       : `<span>${d>=0?'+':'−'}${fmtMoney(Math.abs(d),c)}<br><span class="muted">${fmtPct(s.delta_pct_vs_hold)}</span></span>`;
     tr.innerHTML = `<td class="num" data-label="Rank">${i+1}</td>
-      <td data-label="Strategy"><b>${s.name}</b><br><span class="muted">${s.thesis||''}</span></td>
+      <td data-label="Strategy"><b>${cleanUiText(s.name)}</b><br><span class="muted">${cleanUiText(s.thesis)}</span></td>
       <td class="num align-end" data-label="Expected revenue">${fmtMoney(s.totals.revenue,c)}</td>
       <td class="num align-end ${d>=0?'pos':'neg'}" data-label="Δ vs hold">${delta}</td>
       <td class="num align-end" data-label="Occupancy">${(s.totals.occupancy*100).toFixed(0)}%</td>
       <td class="num align-end" data-label="ADR">${fmtMoney(s.totals.adr,c)}</td>
       <td data-label="Risk">${s.risks.map((r)=>`<span class="risk" title="${r.label}">Risk · ${r.code.replace('_',' ')}</span>`).join('')}</td>
-      <td data-label="Chart"><input type="checkbox" ${S.selected.has(s.id)?'checked':''} aria-label="Show ${s.name} on chart" title="Show on chart" data-chart="${s.id}"></td>`;
+      <td data-label="Chart"><input type="checkbox" ${S.selected.has(s.id)?'checked':''} aria-label="Show ${cleanUiText(s.name)} on chart" title="Show on chart" data-chart="${s.id}"></td>`;
     const openScenario = (ev) => {
       if (ev.target.dataset && ev.target.dataset.chart) {
         if (ev.target.checked) S.selected.add(s.id); else S.selected.delete(s.id);
@@ -2122,7 +2167,7 @@ function renderLeaderboard() {
   });
   S.hasRenderedLeaderboard = true;
   $('failed-list').textContent = failed.length
-    ? 'Failed scenarios (excluded from ranking): ' + failed.map((f)=>`${f.name} — ${f.error}`).join(' · ') : '';
+    ? 'Failed scenarios (excluded from ranking): ' + failed.map((f)=>`${cleanUiText(f.name)}: ${cleanUiText(f.error)}`).join('; ') : '';
   $('detail-section').style.display = S.detailId ? '' : 'none';
 }
 
@@ -2130,7 +2175,7 @@ function renderSensitivity() {
   const sens = RabshScore.sensitivity(S.bundle.previews, S.ctx, S.horizon);
   const el = $('sensitivity');
   el.innerHTML = '<span class="muted">Winner by elasticity:</span> ' + sens.map((pt) =>
-    `<span class="pt ${Math.abs(pt.elasticity-S.E)<=0.125?'cur':''}" title="E=${pt.elasticity}">E${pt.elasticity}: ${pt.winner_name||'—'}</span>`).join('');
+    `<span class="pt ${Math.abs(pt.elasticity-S.E)<=0.125?'cur':''}" title="E=${pt.elasticity}">E${pt.elasticity}: ${cleanUiText(pt.winner_name || 'Unavailable')}</span>`).join('');
 }
 
 // ---------- chart ----------
@@ -2148,7 +2193,7 @@ function renderChart() {
   S.scored.ranked.forEach((s, i) => {
     const color = COLORS[i % COLORS.length];
     const lab = document.createElement('label');
-    lab.innerHTML = `<input type="checkbox" aria-label="Show ${s.name} on chart" ${S.selected.has(s.id)?'checked':''}> <span class="swatch" style="background:${color}"></span>${s.name}`;
+    lab.innerHTML = `<input type="checkbox" aria-label="Show ${cleanUiText(s.name)} on chart" ${S.selected.has(s.id)?'checked':''}> <span class="swatch" style="background:${color}"></span>${cleanUiText(s.name)}`;
     lab.querySelector('input').addEventListener('change', (e)=>{ e.target.checked?S.selected.add(s.id):S.selected.delete(s.id); renderChart(); });
     legend.appendChild(lab);
   });
@@ -2199,7 +2244,7 @@ function renderChart() {
       const idx = S.scored.ranked.indexOf(s);
       const r = s.rows[i];
       if (!r) continue;
-      html += `<div class="tt-row"><span><i class="tt-swatch" style="background:${COLORS[idx%COLORS.length]}"></i>${s.name}</span>` +
+      html += `<div class="tt-row"><span><i class="tt-swatch" style="background:${COLORS[idx%COLORS.length]}"></i>${cleanUiText(s.name)}</span>` +
         `<span class="num">${fmtMoney(r.price,S.ctx.currency)} · P=${(r.p_booked*100).toFixed(0)}%</span></div>`;
     }
     html += `<div class="tt-row muted"><span>market ref</span><span class="num">${fmtMoney(series[0].rows[i].ref,S.ctx.currency)}</span></div>`;
@@ -2226,8 +2271,8 @@ function renderDetail(id) {
   const s = S.scored.ranked.find((x)=>x.id===id);
   if (!s) return;
   $('detail-section').style.display = '';
-  $('detail-name').textContent = s.name;
-  $('detail-rationale').textContent = s.rationale;
+  $('detail-name').textContent = cleanUiText(s.name);
+  $('detail-rationale').textContent = cleanUiText(s.rationale);
   $('detail-payload').textContent = JSON.stringify(s.payload, null, 2);
   const tbody = $('detail-days').querySelector('tbody');
   tbody.innerHTML = s.rows.map((r)=>`<tr>
@@ -2264,16 +2309,16 @@ function renderExecPanel() {
   const mb = $('exec-mode');
   mb.className = 'modebanner ' + p.mode;
   mb.textContent = p.mode === 'rw'
-    ? 'LIVE WRITE MODE — Apply strategy sends this exact PUT to Wheelhouse and updates real preferences.'
+    ? 'LIVE WRITE MODE: Apply strategy sends this exact PUT to Wheelhouse and updates real preferences.'
     : p.mode === 'replay'
-    ? 'REPLAY MODE — Apply strategy simulates the write; the exact PUT payload remains copyable.'
-    : 'READ-ONLY MODE (no WHEELHOUSE_KEY_RW) — copy the exact PUT payload below and apply it yourself.';
+    ? 'REPLAY MODE: Apply strategy simulates the write; the exact PUT payload remains copyable.'
+    : 'READ-ONLY MODE (no WHEELHOUSE_KEY_RW): copy the exact PUT payload below and apply it yourself.';
   const tbody = $('diff-table').querySelector('tbody');
   tbody.innerHTML = p.diff.length ? p.diff.map((d)=>`<tr>
     <td data-label="Preference path">${d.path}</td>
     <td class="del" data-label="Current">${JSON.stringify(d.before)}</td>
     <td class="add" data-label="Proposed">${JSON.stringify(d.after)}</td></tr>`).join('')
-    : '<tr><td colspan="3" class="muted">No differences — preferences already match this strategy.</td></tr>';
+    : '<tr><td colspan="3" class="muted">No differences. Preferences already match this strategy.</td></tr>';
   $('apply-btn').disabled = !p.diff.length;
   $('exec-result').style.display = 'none';
   $('exec-status').textContent = 'diff hash ' + p.diff_hash.slice(0,16) + '…';
@@ -2289,7 +2334,7 @@ async function applyExecution() {
     const r = await api('/api/execute/apply', { diff_hash:S.plan.diff_hash });
     $('exec-result').style.display = '';
     if (r.simulated) {
-      $('exec-status').textContent = r.message;
+      $('exec-status').textContent = cleanUiText(r.message);
       $('readback').textContent = JSON.stringify(r.plan.put_body, null, 2);
     } else {
       $('exec-status').innerHTML = `<span class="pos">✓ Applied (PUT ${r.put_status}). Readback confirms:</span>`;
@@ -2297,7 +2342,7 @@ async function applyExecution() {
     }
     setButtonState(btn, 'success');
   } catch (e) {
-    $('exec-status').textContent = 'Apply failed: ' + e.message;
+    $('exec-status').textContent = 'Apply failed: ' + cleanUiText(e.message);
     btn.disabled = false;
     settleButton(btn, 'error');
   }
@@ -2314,7 +2359,7 @@ function copyPayload() {
       window.setTimeout(() => { btn.textContent = 'Copy PUT payload'; }, 2500);
     })
     .catch((e)=>{
-      $('exec-status').textContent = 'Copy failed: ' + e.message;
+      $('exec-status').textContent = 'Copy failed: ' + cleanUiText(e.message);
       settleButton(btn, 'error');
     });
 }
@@ -2327,10 +2372,20 @@ async function composeCustom() {
   const payload = {};
   const base = $('c-base').value; if (base) payload.base_price = a[base];
   const season = $('c-season').value; if (season) payload.seasonality_adjustment = { type: season, rules: [] };
-  const lm = $('c-lastmin').value;
-  if (lm) payload.last_minute_discount = { active:true, rules:[{days:3,amount:Number(lm),amount_type:'percent'},{days:7,amount:Math.round(lm*0.6),amount_type:'percent'},{days:14,amount:Math.round(lm*0.3),amount_type:'percent'}] };
-  const far = $('c-far').value; if (far) payload.far_future_premium = { active:true, rules:[{days:90,amount:Number(far),amount_type:'percent'}] };
-  const wk = $('c-weekend').value; if (wk) payload.day_of_week = { friday:10, saturday:12 };
+  // Rule blocks use the live-verified shapes from lib/scenarios.js: outer
+  // type (CON/REC/AGG — follows the seasonality pick, REC otherwise) plus
+  // time_based / day_of_week rules. The API 400s without the outer type.
+  const t = season || 'REC';
+  const lm = Number($('c-lastmin').value);
+  if (lm) payload.last_minute_discount = { type: t, rules: [
+    { type:'time_based', days_before:3, days_after:0, value: lm },
+    { type:'time_based', days_before:7, days_after:0, value: Math.round(lm*0.6) },
+    { type:'time_based', days_before:14, days_after:0, value: Math.round(lm*0.3) },
+  ]};
+  const far = Number($('c-far').value);
+  if (far) payload.far_future_premium = { type: t, rules: [{ type:'time_based', days_after:90, value: far }] };
+  const wk = $('c-weekend').value;
+  if (wk) payload.day_of_week = { type: t, rules: [{ type:'day_of_week', day_of_week_values: [null,null,null,null,null,10,12] }] };
   if (!Object.keys(payload).length) {
     $('compose-status').textContent = 'Pick at least one lever.';
     settleButton(btn, 'error');
@@ -2348,7 +2403,7 @@ async function composeCustom() {
     $('compose-status').textContent = '✓ Added to leaderboard.';
     settleButton(btn, 'success');
   } catch (e) {
-    $('compose-status').textContent = 'Failed: ' + e.message;
+    $('compose-status').textContent = 'Failed: ' + cleanUiText(e.message);
     settleButton(btn, 'error');
   } finally {
     btn.disabled = false;
@@ -2363,7 +2418,7 @@ async function refreshAudit() {
     const tbody = $('audit-table').querySelector('tbody');
     tbody.innerHTML = r.entries.slice(-25).reverse().map((e)=>`<tr>
       <td class="num" data-label="Sequence">${e.seq}</td><td class="num" data-label="Time">${e.ts.replace('T',' ').slice(0,19)}</td>
-      <td data-label="Event"><b>${e.event}</b></td>
+      <td data-label="Event"><b>${cleanUiText(e.event)}</b></td>
       <td class="hash" data-label="Payload hash">${e.payload_hash.slice(0,16)}…</td>
       <td class="hash" data-label="Chain hash">${e.prev_hash.slice(0,10)}→${e.hash.slice(0,10)}</td></tr>`).join('');
   } catch {}
@@ -2376,11 +2431,11 @@ async function verifyAudit() {
   try {
     const r = await api('/api/audit/verify');
     $('verify-result').innerHTML = r.ok
-      ? `<span class="audit-ok">✓ CHAIN INTACT — ${r.entries} entries verified</span>`
-      : `<span class="audit-bad">✗ CHAIN BROKEN at line ${r.brokenAt}: ${r.reason}</span>`;
+      ? `<span class="audit-ok">✓ CHAIN INTACT: ${r.entries} entries verified</span>`
+      : `<span class="audit-bad">✗ CHAIN BROKEN at line ${r.brokenAt}: ${cleanUiText(r.reason)}</span>`;
     settleButton(btn, r.ok ? 'success' : 'error');
   } catch (e) {
-    $('verify-result').textContent = e.message;
+    $('verify-result').textContent = cleanUiText(e.message);
     settleButton(btn, 'error');
   } finally {
     btn.disabled = false;
