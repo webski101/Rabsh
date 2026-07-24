@@ -210,6 +210,9 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === '/' || url.pathname === '/index.html') {
       return serveStatic(res, path.join(__dirname, 'ui', 'index.html'));
     }
+    if (url.pathname === '/tokens.css') {
+      return serveStatic(res, path.join(__dirname, 'tokens.css'));
+    }
     if (url.pathname === '/lib/demand.js' || url.pathname === '/lib/score.js') {
       return serveStatic(res, path.join(__dirname, url.pathname));
     }
