@@ -4,3 +4,4 @@ data/cache/*
 !data/cache/demo-manifest.json
 data/audit.jsonl
 .env
+.hallmark/ 
